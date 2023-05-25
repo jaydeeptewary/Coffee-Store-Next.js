@@ -4,6 +4,8 @@ import styles from "@/styles/Home.module.css";
 import Banner from "../components/banner.js";
 import Card from "@/components/card.js";
 import { fetchCoffeeStores } from "@/lib/coffee-stores.js";
+import userTrackLocation from "@/hooks/user-track-location.js";
+import { useEffect, useState } from "react";
 
 export async function getStaticProps(context) {
   const coffeeStores = await fetchCoffeeStores();
@@ -14,8 +16,27 @@ export async function getStaticProps(context) {
 
 // Client side code
 export default function Home(props) {
+  const { handleTrackLocation, latLong, locationErrorMsg, isFindingLocation } =
+    userTrackLocation();
+  const [coffeeStores, setCoffeeStores] = useState("");
+  const [coffeeStoresError, setCoffeeStoresError] = useState(null);
+  useEffect(() => {
+    async function setCoffeeStoresByLocation() {
+      if (latLong) {
+        try {
+          const limit = 30;
+          const fetchedCoffeeStores = await fetchCoffeeStores(latLong, limit);
+          setCoffeeStores(fetchedCoffeeStores);
+        } catch (error) {
+          console.log("Error", { error });
+          setCoffeeStoresError(error.message);
+        }
+      }
+    }
+    setCoffeeStoresByLocation();
+  }, [latLong]);
   const handleOnBannerButtonClick = () => {
-    console.log("Hi Banner Button Clciked");
+    handleTrackLocation();
   };
   return (
     <>
@@ -26,33 +47,65 @@ export default function Home(props) {
         </Head>
         <main className={styles.main}>
           <Banner
-            buttonText={"View Coffee Store"}
+            buttonText={isFindingLocation ? "Locating..." : "View Coffee Store"}
             handleOnClick={handleOnBannerButtonClick}
           />
+          {locationErrorMsg && (
+            <p> Something went wrong : {locationErrorMsg}</p>
+          )}
+          {coffeeStoresError && <p> Something went wrong : {coffeeStores}</p>}
           <div className={styles.heroImage}>
             <Image src="/static/hero-image.png" width={700} height={400} />
           </div>
-          {props.coffeeStores.length > 0 && (
-            <>
-              <h2 className={styles.heading2}> Local Coffee Stores </h2>
-              <div className={styles.cardLayout}>
-                {props.coffeeStores.map((coffeeStores) => {
-                  return (
-                    <Card
-                      key={coffeeStores.id}
-                      name={coffeeStores.name}
-                      imgURL={
-                        coffeeStores.imgUrl ||
-                        "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
-                      }
-                      href={`/coffee-store/${coffeeStores.id}`}
-                      className={styles.card}
-                    />
-                  );
-                })}
-              </div>
-            </>
-          )}
+          <div className={styles.sectionWrapper}>
+            {coffeeStores.length > 0 && (
+              <>
+                <h2 className={styles.heading2}> Coffee Stores Near Me !! </h2>
+                <div className={styles.cardLayout}>
+                  {coffeeStores.map((coffeeStores) => {
+                    return (
+                      <Card
+                        key={coffeeStores.id}
+                        name={coffeeStores.name}
+                        imgURL={
+                          coffeeStores.imgUrl ||
+                          "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+                        }
+                        href={`/coffee-store/${coffeeStores.id}`}
+                        className={styles.card}
+                      />
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
+          <div className={styles.sectionWrapper}>
+            {props.coffeeStores.length > 0 && (
+              <>
+                <h2 className={styles.heading2}>
+                  {" "}
+                  Coffee Stores In Connaught Place{" "}
+                </h2>
+                <div className={styles.cardLayout}>
+                  {props.coffeeStores.map((coffeeStores) => {
+                    return (
+                      <Card
+                        key={coffeeStores.id}
+                        name={coffeeStores.name}
+                        imgURL={
+                          coffeeStores.imgUrl ||
+                          "https://images.unsplash.com/photo-1504753793650-d4a2b783c15e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=2000&q=80"
+                        }
+                        href={`/coffee-store/${coffeeStores.id}`}
+                        className={styles.card}
+                      />
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </div>
         </main>
       </div>
     </>

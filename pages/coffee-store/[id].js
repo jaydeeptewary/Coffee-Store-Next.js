@@ -25,12 +25,12 @@ export async function getStaticProps(staticProps) {
   // we can destructure the same above also like {params}
   const params = staticProps.params;
   const coffeeStores = await fetchCoffeeStores();
-  console.log("Props --> ", coffeeStores);
+  const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+    return coffeeStore.id.toString() === params.id;
+  });
   return {
     props: {
-      coffeeStore: coffeeStores.find((coffeeStore) => {
-        return coffeeStore.id.toString() === params.id;
-      }),
+      coffeeStore: findCoffeeStoresById ? findCoffeeStoresById : {},
     },
   };
 }
