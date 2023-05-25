@@ -5,6 +5,9 @@ import styles from "../../styles/coffee-store.module.css";
 import Image from "next/image";
 import cls from "classnames";
 import { fetchCoffeeStores } from "@/lib/coffee-stores.js";
+import { useContext, useEffect, useState } from "react";
+import { StoreContext } from "../_app";
+import { isEmpty } from "@/utils";
 
 export async function getStaticPaths() {
   const coffeeStores = await fetchCoffeeStores();
@@ -35,13 +38,31 @@ export async function getStaticProps(staticProps) {
   };
 }
 
-const CoffeStore = (props) => {
+const CoffeStore = (initialProps) => {
   const router = useRouter();
+  const id = router.query.id;
 
+  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
+
+  //Data we are getting from ContextAPI
+  const {
+    state: { coffeeStores },
+  } = useContext(StoreContext);
+
+  useEffect(() => {
+    if (isEmpty(initialProps.coffeeStore)) {
+      if (coffeeStores.length > 0) {
+        const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+          return coffeeStore.id.toString() === id;
+        });
+        setCoffeeStore(findCoffeeStoresById);
+      }
+    }
+  }, [id]);
   if (router.isFallback) {
     return <div> ... loading ... </div>;
   }
-  const { address, locality, name, imgUrl } = props.coffeeStore;
+  const { address, locality, name, imgUrl } = coffeeStore;
   const handleUpvoteButton = () => {
     console.log("Up Vote Button");
   };
