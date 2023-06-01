@@ -28,12 +28,12 @@ export async function getStaticProps(staticProps) {
   // we can destructure the same above also like {params}
   const params = staticProps.params;
   const coffeeStores = await fetchCoffeeStores();
-  const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+  const coffeeStoreFromContext = coffeeStores.find((coffeeStore) => {
     return coffeeStore.id.toString() === params.id;
   });
   return {
     props: {
-      coffeeStore: findCoffeeStoresById ? findCoffeeStoresById : {},
+      coffeeStore: coffeeStoreFromContext ? coffeeStoreFromContext : {},
     },
   };
 }
@@ -49,9 +49,26 @@ const CoffeStore = (initialProps) => {
     state: { coffeeStores },
   } = useContext(StoreContext);
 
-  const handleCreateCoffeeStore = async () => {
+  const handleCreateCoffeeStore = async (coffeeStore) => {
     try {
-      const response = await "/api/createCoffeeStore";
+      const { id, name, voting, imgUrl, address, locality } = coffeeStore;
+      const response = await fetch("/api/createCoffeeStore", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id,
+          name,
+          voting: 0,
+          imgUrl,
+          address: address || "",
+          locality: locality || "",
+        }),
+      });
+
+      const dbCoffeeStore = response.json();
+      console.log({ dbCoffeeStore });
     } catch (err) {
       console.error("Error creating coffee store");
     }
@@ -60,13 +77,19 @@ const CoffeStore = (initialProps) => {
   useEffect(() => {
     if (isEmpty(initialProps.coffeeStore)) {
       if (coffeeStores.length > 0) {
-        const findCoffeeStoresById = coffeeStores.find((coffeeStore) => {
+        const coffeeStoreFromContext = coffeeStores.find((coffeeStore) => {
           return coffeeStore.id.toString() === id;
         });
-        setCoffeeStore(findCoffeeStoresById);
+        if (coffeeStoreFromContext) {
+          setCoffeeStore(coffeeStoreFromContext);
+          handleCreateCoffeeStore(coffeeStoreFromContext);
+        }
       }
+    } else {
+      // SSG --> static site generation
+      handleCreateCoffeeStore(initialProps.coffeeStore);
     }
-  }, [id]);
+  }, [id, initialProps, initialProps.coffeeStore]);
   if (router.isFallback) {
     return <div> ... loading ... </div>;
   }
