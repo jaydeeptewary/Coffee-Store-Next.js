@@ -1,6 +1,6 @@
 // by default every serverless function is a get Request
 
-import { table, getMinifiedRecords } from "@/lib/airtable";
+import { table, getMinifiedRecords, findRecordsByFilter } from "@/lib/airtable";
 
 const createCoffeeStore = async (req, res) => {
   // Find a record
@@ -8,15 +8,10 @@ const createCoffeeStore = async (req, res) => {
   const { id, name, locality, address, imgUrl, voting } = req.body;
   try {
     if (id) {
-      const findCoffeeStoresRecord = await table
-        .select({
-          filterByFormula: `id="${id}"`,
-        })
-        .firstPage();
+      const records = await findRecordsByFilter(id);
 
-      if (findCoffeeStoresRecord.length != 0) {
-        const record = getMinifiedRecords(findCoffeeStoresRecord);
-        res.json(record);
+      if (records.length != 0) {
+        res.json(records);
       } else {
         // create the record
         if (name) {
@@ -37,7 +32,7 @@ const createCoffeeStore = async (req, res) => {
           res.json({ record });
         } else {
           res.status(400);
-          res.json({ message: "Id or name is missing" });
+          res.json({ message: "name is missing" });
         }
       }
     } else {
