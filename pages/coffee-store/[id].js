@@ -8,6 +8,7 @@ import { fetchCoffeeStores } from "@/lib/coffee-stores.js";
 import { useContext, useEffect, useState } from "react";
 import { StoreContext } from "@/store/store-context.js";
 import { isEmpty } from "@/utils";
+import useSWR from "swr";
 
 export async function getStaticPaths() {
   const coffeeStores = await fetchCoffeeStores();
@@ -25,15 +26,15 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps(staticProps) {
-  // we can destructure the same above also like {params}
   const params = staticProps.params;
+
   const coffeeStores = await fetchCoffeeStores();
-  const coffeeStoreFromContext = coffeeStores.find((coffeeStore) => {
-    return coffeeStore.id.toString() === params.id;
+  const findCoffeeStoreById = coffeeStores.find((coffeeStore) => {
+    return coffeeStore.id.toString() === params.id; //dynamic id
   });
   return {
     props: {
-      coffeeStore: coffeeStoreFromContext ? coffeeStoreFromContext : {},
+      coffeeStore: findCoffeeStoreById ? findCoffeeStoreById : {},
     },
   };
 }
@@ -89,13 +90,29 @@ const CoffeStore = (initialProps) => {
       // SSG --> static site generation
       handleCreateCoffeeStore(initialProps.coffeeStore);
     }
-  }, [id, initialProps, initialProps.coffeeStore]);
+  }, [id, coffeeStores, initialProps.coffeeStore]);
   if (router.isFallback) {
     return <div> ... loading ... </div>;
   }
   const { address, locality, name, imgUrl } = coffeeStore;
 
   const [votingCount, setVotingCount] = useState(1);
+
+  const fetcher = (url) => fetch(url).then((res) => res.json());
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+
+  useEffect(() => {
+    if (data && data.length > 0) {
+      console.log("Data from SWR --> ", data);
+      setCoffeeStore(data[0]);
+
+      setVotingCount(data[0].voting);
+    }
+  }, [data]);
+
+  if (error) {
+    return <div>Something went wrong retrieving coffee store page</div>;
+  }
 
   const handleUpvoteButton = () => {
     console.log("Up Vote Button");
