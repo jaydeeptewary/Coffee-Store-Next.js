@@ -103,9 +103,7 @@ const CoffeStore = (initialProps) => {
 
   useEffect(() => {
     if (data && data.length > 0) {
-      console.log("Data from SWR --> ", data);
       setCoffeeStore(data[0]);
-
       setVotingCount(data[0].voting);
     }
   }, [data]);
