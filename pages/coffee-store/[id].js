@@ -94,9 +94,15 @@ const CoffeStore = (initialProps) => {
     return <div> ... loading ... </div>;
   }
   const { address, locality, name, imgUrl } = coffeeStore;
+
+  const [votingCount, setVotingCount] = useState(1);
+
   const handleUpvoteButton = () => {
     console.log("Up Vote Button");
+    let count = votingCount + 1;
+    setVotingCount(count);
   };
+
   return (
     <div className={styles.layout}>
       <Head>
@@ -139,7 +145,7 @@ const CoffeStore = (initialProps) => {
           )}
           <div className={styles.iconWrapper}>
             <Image src="/static/icons/star.svg" height="24" width="24" />
-            <p className={styles.text}>1</p>
+            <p className={styles.text}>{votingCount}</p>
           </div>
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
             UpVote!
