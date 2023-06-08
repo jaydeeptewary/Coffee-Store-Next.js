@@ -19,7 +19,7 @@ export async function getStaticProps(context) {
 export default function Home(props) {
   const { handleTrackLocation, locationErrorMsg, isFindingLocation } =
     userTrackLocation();
-  // const [coffeeStores, setCoffeeStores] = useState("");
+
   const [coffeeStoresError, setCoffeeStoresError] = useState(null);
 
   const { dispatch, state } = useContext(StoreContext);
@@ -33,7 +33,7 @@ export default function Home(props) {
             `/api/getCoffeeStoresByLocation?latLong=${latLong}&limit=${limit}`
           );
           const coffeeStores = await response.json();
-          // setCoffeeStores(fetchedCoffeeStores);
+
           dispatch({
             type: ACTION_TYPES.SET_COFFEE_STORES,
             payload: { coffeeStores: coffeeStores },
@@ -46,7 +46,8 @@ export default function Home(props) {
       }
     }
     setCoffeeStoresByLocation();
-  }, [latLong]);
+  }, [dispatch, latLong]);
+
   const handleOnBannerButtonClick = () => {
     handleTrackLocation();
   };

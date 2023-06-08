@@ -43,7 +43,9 @@ const CoffeStore = (initialProps) => {
   const router = useRouter();
   const id = router.query.id;
 
-  const [coffeeStore, setCoffeeStore] = useState(initialProps.coffeeStore);
+  const [coffeeStore, setCoffeeStore] = useState(
+    initialProps.coffeeStore || {}
+  );
 
   //Data we are getting from ContextAPI
   const {
@@ -68,7 +70,7 @@ const CoffeStore = (initialProps) => {
         }),
       });
 
-      const dbCoffeeStore = response.json();
+      const dbCoffeeStore = await response.json();
     } catch (err) {
       console.error("Error creating coffee store");
     }
@@ -90,10 +92,11 @@ const CoffeStore = (initialProps) => {
       handleCreateCoffeeStore(initialProps.coffeeStore);
     }
   }, [id, coffeeStores, initialProps.coffeeStore]);
+
   if (router.isFallback) {
     return <div> ... loading ... </div>;
   }
-  const { address, locality, name, imgUrl } = coffeeStore;
+  const { address = "", locality = "", name = "", imgUrl = "" } = coffeeStore;
 
   const [votingCount, setVotingCount] = useState(0);
 
@@ -123,7 +126,7 @@ const CoffeStore = (initialProps) => {
         }),
       });
 
-      const dbCoffeeStore = response.json();
+      const dbCoffeeStore = await response.json();
       if (dbCoffeeStore && dbCoffeeStore.length > 0) {
         let count = votingCount + 1;
         setVotingCount(count);
