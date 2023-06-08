@@ -166,18 +166,33 @@ const CoffeStore = (initialProps) => {
         <div className={cls("glass", styles.col2)}>
           {address && (
             <div className={styles.iconWrapper}>
-              <Image src="/static/icons/places.svg" height="24" width="24" />
+              <Image
+                src="/static/icons/places.svg"
+                height="24"
+                width="24"
+                alt={address}
+              />
               <p className={styles.text}>{address}</p>
             </div>
           )}
           {locality && (
             <div className={styles.iconWrapper}>
-              <Image src="/static/icons/nearMe.svg" height="24" width="24" />
+              <Image
+                src="/static/icons/nearMe.svg"
+                height="24"
+                width="24"
+                alt={locality}
+              />
               <p className={styles.text}>{locality}</p>
             </div>
           )}
           <div className={styles.iconWrapper}>
-            <Image src="/static/icons/star.svg" height="24" width="24" />
+            <Image
+              src="/static/icons/star.svg"
+              height="24"
+              width="24"
+              alt={"Voting Count"}
+            />
             <p className={styles.text}>{votingCount}</p>
           </div>
           <button className={styles.upvoteButton} onClick={handleUpvoteButton}>
