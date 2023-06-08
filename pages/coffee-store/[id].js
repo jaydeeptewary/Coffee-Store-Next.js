@@ -98,17 +98,17 @@ const CoffeStore = (initialProps) => {
     }
   }, [id, coffeeStores, initialProps.coffeeStore]);
 
-  if (router.isFallback) {
-    return <div> ... loading ... </div>;
-  }
-  const { address = "", locality = "", name = "", imgUrl = "" } = coffeeStore;
-
   useEffect(() => {
     if (data && data.length > 0) {
       setCoffeeStore(data[0]);
       setVotingCount(data[0].voting);
     }
   }, [data]);
+
+  if (router.isFallback) {
+    return <div> ... loading ... </div>;
+  }
+  const { address = "", locality = "", name = "", imgUrl = "" } = coffeeStore;
 
   if (error) {
     return <div>Something went wrong retrieving coffee store page</div>;
