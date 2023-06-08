@@ -140,6 +140,7 @@ const CoffeStore = (initialProps) => {
     <div className={styles.layout}>
       <Head>
         <title>{name}</title>
+        <meta name="description" content={`${name}}`}></meta>
       </Head>
       <div className={styles.container}>
         <div className={styles.col1}>
