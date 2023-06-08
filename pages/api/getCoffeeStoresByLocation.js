@@ -9,7 +9,7 @@ const getCoffeeStoresByLocation = async (req, res) => {
     res.status(200);
     res.json(response);
   } catch (error) {
-    console.log({ error });
+    console.error({ error });
     res.status(500);
     res.json({ message: "Something went wrong --> ", err });
   }
