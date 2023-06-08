@@ -47,6 +47,11 @@ const CoffeStore = (initialProps) => {
     initialProps.coffeeStore || {}
   );
 
+  const [votingCount, setVotingCount] = useState(0);
+
+  const fetcher = (url) => fetch(url).then((res) => res.json());
+  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
+
   //Data we are getting from ContextAPI
   const {
     state: { coffeeStores },
@@ -97,11 +102,6 @@ const CoffeStore = (initialProps) => {
     return <div> ... loading ... </div>;
   }
   const { address = "", locality = "", name = "", imgUrl = "" } = coffeeStore;
-
-  const [votingCount, setVotingCount] = useState(0);
-
-  const fetcher = (url) => fetch(url).then((res) => res.json());
-  const { data, error } = useSWR(`/api/getCoffeeStoreById?id=${id}`, fetcher);
 
   useEffect(() => {
     if (data && data.length > 0) {
